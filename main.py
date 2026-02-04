@@ -55,15 +55,14 @@ def now_local():
 
 
 def format_time(minutes):
-
     # уже появился
-   # уже появился
-if minutes <= BOSS_ACTIVE_MINUTES:
-    return "🔥 СЕЙЧАС"
+    if minutes <= BOSS_ACTIVE_MINUTES:
+        return "🔥 СЕЙЧАС"
 
-# скоро появится
-if minutes <= SOON_MINUTES:
-    return "⚔ СКОРО"
+    # скоро появится
+    if minutes <= SOON_MINUTES:
+        return "⚔ СКОРО"
+
     # обычный таймер
     minutes = math.ceil(minutes / 5) * 5
 
@@ -73,6 +72,8 @@ if minutes <= SOON_MINUTES:
     if h:
         return f"⏳ до спавна: {h}ч {m}м"
     return f"⏳ до спавна: {m}м"
+
+    
 # ================= ПОИСК БОССА =================
 def get_next_boss():
     now = now_local()
@@ -102,7 +103,7 @@ def get_next_boss():
 
     minutes = int((nearest_time - now).total_seconds() // 60)
     return nearest_boss, minutes
-    @tasks.loop(minutes=5)
+   
 
 # ================= ОБНОВЛЕНИЕ КАНАЛА =================
 @tasks.loop(minutes=1)
