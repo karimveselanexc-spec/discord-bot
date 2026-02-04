@@ -8,7 +8,7 @@ from datetime import datetime, timedelta, timezone
 TOKEN = os.getenv("TOKEN")
 
 # ================= НАСТРОЙКИ =================
-GUILD_ID = 1467457427451673867
+GUILD_ID = 1467457427451678867
 CHANNEL_ID = 1468379673292443809
 UTC_OFFSET = 5  # Тюмень
 # ============================================
