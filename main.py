@@ -116,13 +116,12 @@ async def update_channel():
 
         boss_times = get_all_boss_times()
 
-       for channel in guild.voice_channels:
-
+        for channel in guild.voice_channels:
             for boss, minutes in boss_times.items():
 
                 if boss.lower() in channel.name.lower():
 
-                   text = format_time(minutes)
+                    text = format_time(minutes)
                     boss_name = BOSS_NAMES[boss]
                     new_name = f"{boss_name} • {text}"
 
@@ -132,7 +131,6 @@ async def update_channel():
 
     except Exception as e:
         print("❌ ОШИБКА:", e)
-
 # ================= ЗАПУСК =================
 # ================= НАПОМИНАЛКА О РЕСТАРТЕ =================
 
