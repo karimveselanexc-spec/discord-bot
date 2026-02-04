@@ -1,8 +1,9 @@
-1  import os
-2  import discord
-3  from discord.ext import commands, tasks
-4  from datetime import datetime, timedelta, timezone
-5  import math
+print("HELLO FROM THIS FILE")
+import os
+import discord
+from discord.ext import commands, tasks
+from datetime import datetime, timedelta, timezone
+import math
 
 
 # ================= TOKEN =================
