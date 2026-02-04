@@ -1,4 +1,4 @@
-1  import os
+1  Import os
 2  import discord
 3  from discord.ext import commands, tasks
 4  from datetime import datetime, timedelta, timezone
