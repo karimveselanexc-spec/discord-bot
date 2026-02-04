@@ -3,12 +3,13 @@ import discord
 from discord.ext import commands, tasks
 from datetime import datetime, timedelta, timezone
 
+# ================= TOKEN =================
 TOKEN = os.getenv("TOKEN")
 
 # ================= НАСТРОЙКИ =================
 GUILD_ID = 1467457427451673867
 CHANNEL_ID = 1468379673292443809
-UTC_OFFSET = 5  # Тюмень UTC+5
+UTC_OFFSET = 5  # Тюмень
 # ============================================
 
 
@@ -23,7 +24,7 @@ BOSS_NAMES = {
 }
 
 
-# ===== Расписание (UTC) =====
+# ===== Расписание =====
 SCHEDULE = {
     "Mon": [("18:00", "Kutum")],
     "Tue": [("18:00", "Nouver")],
@@ -35,19 +36,19 @@ SCHEDULE = {
 }
 
 
-# ===== Intents =====
+# ================= INTENTS =================
 intents = discord.Intents.default()
 intents.guilds = True
+intents.message_content = True  # убирает warning
 
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
-# ===== Текущее время =====
+# ================= ВРЕМЯ =================
 def now_local():
     return datetime.now(timezone.utc) + timedelta(hours=UTC_OFFSET)
 
 
-# ===== Красивый формат =====
 def format_time(minutes):
     if minutes <= 0:
         return "🔥 СЕЙЧАС"
@@ -60,7 +61,7 @@ def format_time(minutes):
     return f"{m}м"
 
 
-# ===== Поиск ближайшего босса =====
+# ================= ПОИСК БОССА =================
 def get_next_boss():
     now = now_local()
     today = now.strftime("%a")
@@ -68,7 +69,7 @@ def get_next_boss():
     days = list(SCHEDULE.keys())
     today_index = days.index(today)
 
-    nearest = None
+    nearest_time = None
     nearest_boss = None
 
     for add_day in range(7):
@@ -83,48 +84,58 @@ def get_next_boss():
                 boss_time += timedelta(days=add_day)
 
             if boss_time > now:
-                if nearest is None or boss_time < nearest:
-                    nearest = boss_time
+                if nearest_time is None or boss_time < nearest_time:
+                    nearest_time = boss_time
                     nearest_boss = boss
 
-    minutes = int((nearest - now).total_seconds() // 60)
+    minutes = int((nearest_time - now).total_seconds() // 60)
     return nearest_boss, minutes
 
 
-# ===== Обновление канала =====
+# ================= ОБНОВЛЕНИЕ КАНАЛА =================
 @tasks.loop(minutes=1)
 async def update_channel():
+    print("\n==== ЦИКЛ ОБНОВЛЕНИЯ ====")
 
     try:
         guild = bot.get_guild(GUILD_ID)
+        print("guild ->", guild)
+
         if not guild:
             print("❌ Сервер не найден")
             return
 
         channel = guild.get_channel(CHANNEL_ID)
+        print("channel ->", channel)
+
         if not channel:
             print("❌ Канал не найден")
             return
 
         boss, minutes = get_next_boss()
+        print("boss/minutes ->", boss, minutes)
 
         boss_name = BOSS_NAMES.get(boss, boss)
         time_text = format_time(minutes)
 
         new_name = f"{boss_name} • {time_text}"
+        print("new name ->", new_name)
 
         if channel.name != new_name:
             await channel.edit(name=new_name)
-            print("✅ Канал обновлен:", new_name)
+            print("✅ Канал обновлён")
+        else:
+            print("ℹ️ Уже актуально")
 
     except Exception as e:
-        print("❌ Ошибка:", e)
+        print("❌ ОШИБКА:", e)
 
 
-# ===== Запуск =====
+# ================= ЗАПУСК =================
 @bot.event
 async def on_ready():
-    print(f"🟢 Бот запущен как {bot.user}")
+    print(f"\n🟢 Бот запущен как {bot.user}")
+    print("Запускаю цикл обновления...")
     update_channel.start()
 
 
