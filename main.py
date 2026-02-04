@@ -51,7 +51,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 # ================= ВРЕМЯ =================
 def now_local():
-    return datetime.now(timezone.utc) + timedelta(hours=UTC_OFFSET)
+    return datetime.now(timezone(timedelta(hours=UTC_OFFSET)))
 
 
 def format_time(minutes):
@@ -145,7 +145,7 @@ async def update_channel():
 
 # ================= ЗАПУСК =================
 # ================= НАПОМИНАЛКА О РЕСТАРТЕ =================
-from datetime import datetime, timedelta
+
 
 RESET_HOURS = 71
 PANEL_URL = "https://justrunmy.app/panel/application/4504/"
