@@ -1,8 +1,9 @@
+1  import os
+2  import discord
+3  from discord.ext import commands, tasks
+4  from datetime import datetime, timedelta, timezone
+5  import math
 
-import os
-import discord
-from discord.ext import commands, tasks
-from datetime import datetime, timedelta, timezone
 
 # ================= TOKEN =================
 TOKEN = os.getenv("TOKEN")
@@ -11,6 +12,8 @@ TOKEN = os.getenv("TOKEN")
 GUILD_ID = 1467457427451678867
 CHANNEL_ID = 1468379673292443809
 UTC_OFFSET = 5  # Тюмень
+SOON_MINUTES = 5          # когда писать "Скоро"
+BOSS_ACTIVE_MINUTES = 2   # сколько минут считать "Сейчас"
 # ============================================
 
 
@@ -51,17 +54,24 @@ def now_local():
 
 
 def format_time(minutes):
-    if minutes <= 0:
-        return "🔥 СЕЙЧАС"
+
+    # уже появился
+   # уже появился
+if minutes <= BOSS_ACTIVE_MINUTES:
+    return "🔥 СЕЙЧАС"
+
+# скоро появится
+if minutes <= SOON_MINUTES:
+    return "⚔ СКОРО"
+    # обычный таймер
+    minutes = math.ceil(minutes / 5) * 5
 
     h = minutes // 60
     m = minutes % 60
 
     if h:
-        return f"{h}ч {m}м"
-    return f"{m}м"
-
-
+        return f"⏳ до спавна: {h}ч {m}м"
+    return f"⏳ до спавна: {m}м"
 # ================= ПОИСК БОССА =================
 def get_next_boss():
     now = now_local()
@@ -91,7 +101,7 @@ def get_next_boss():
 
     minutes = int((nearest_time - now).total_seconds() // 60)
     return nearest_boss, minutes
-
+    @tasks.loop(minutes=5)
 
 # ================= ОБНОВЛЕНИЕ КАНАЛА =================
 @tasks.loop(minutes=1)
@@ -135,7 +145,7 @@ async def update_channel():
 # ================= НАПОМИНАЛКА О РЕСТАРТЕ =================
 from datetime import datetime, timedelta
 
-RESET_HOURS = 72
+RESET_HOURS = 0.05
 PANEL_URL = "https://justrunmy.app/panel/application/4504/"
 REMINDER_CHANNEL_ID = 1468572187731562702
 
