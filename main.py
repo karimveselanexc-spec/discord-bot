@@ -118,7 +118,6 @@ async def update_channel():
 
         for channel in guild.voice_channels:
             for boss, minutes in boss_times.items():
-
                 if boss.lower() in channel.name.lower():
 
                     text = format_time(minutes)
