@@ -139,7 +139,7 @@ RESET_HOURS = 72
 PANEL_URL = "https://justrunmy.app/panel/application/4504/"
 REMINDER_CHANNEL_ID = 1468572187731562702
 
-start_time = datetime.utcnow()
+start_time = datetime.now(timezone.utc)
 
 def format_time_left(td: timedelta):
     total = int(td.total_seconds())
