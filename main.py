@@ -147,7 +147,7 @@ async def update_channel():
 # ================= НАПОМИНАЛКА О РЕСТАРТЕ =================
 from datetime import datetime, timedelta
 
-RESET_HOURS = 0.05
+RESET_HOURS = 71
 PANEL_URL = "https://justrunmy.app/panel/application/4504/"
 REMINDER_CHANNEL_ID = 1468572187731562702
 
