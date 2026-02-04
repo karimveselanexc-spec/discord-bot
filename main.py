@@ -149,7 +149,7 @@ def format_time_left(td: timedelta):
 
 @tasks.loop(minutes=10)
 async def restart_reminder():
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     left = timedelta(hours=RESET_HOURS) - (now - start_time)
 
     if left.total_seconds() <= 0:
