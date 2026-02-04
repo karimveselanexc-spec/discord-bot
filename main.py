@@ -131,13 +131,47 @@ async def update_channel():
     except Exception as e:
         print("❌ ОШИБКА:", e)
 
-
 # ================= ЗАПУСК =================
+# ================= НАПОМИНАЛКА О РЕСТАРТЕ =================
+from datetime import datetime, timedelta
+
+RESET_HOURS = 72
+PANEL_URL = "https://justrunmy.app/panel/application/4504/"
+REMINDER_CHANNEL_ID = 1468572187731562702
+
+start_time = datetime.utcnow()
+
+def format_time_left(td: timedelta):
+    total = int(td.total_seconds())
+    h = total // 3600
+    m = (total % 3600) // 60
+    return f"{h}ч {m}м"
+
+@tasks.loop(minutes=10)
+async def restart_reminder():
+    now = datetime.utcnow()
+    left = timedelta(hours=RESET_HOURS) - (now - start_time)
+
+    if left.total_seconds() <= 0:
+        return
+
+    channel = bot.get_channel(REMINDER_CHANNEL_ID)
+    if not channel:
+        return
+
+    if 0 < left.total_seconds() <= 3600:
+        await channel.send(
+            f"⚠️ <@&1467620945056501972>\n"
+            f"🚨 Босс, у меня 1% HP… сейчас отключусь 🤖\n\n"
+            f"⏳ Осталось: **{format_time_left(left)}**\n"
+            f"🧯 Срочно тыкни сюда:\n{PANEL_URL}"
+        )
+
 @bot.event
 async def on_ready():
     print(f"\n🟢 Бот запущен как {bot.user}")
     print("Запускаю цикл обновления...")
     update_channel.start()
-
+    restart_reminder.start()
 
 bot.run(TOKEN)
