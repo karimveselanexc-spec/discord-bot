@@ -75,15 +75,15 @@ def format_time(minutes):
 
     
 # ================= ПОИСК БОССА =================
-def get_next_boss():
+def get_all_boss_times():
     now = now_local()
-    today = now.strftime("%a")
+    result = {}
+
+    for boss in BOSS_NAMES.keys():
+        result[boss] = 999999
 
     days = list(SCHEDULE.keys())
-    today_index = days.index(today)
-
-    nearest_time = None
-    nearest_boss = None
+    today_index = days.index(now.strftime("%a"))
 
     for add_day in range(7):
         day_name = days[(today_index + add_day) % 7]
@@ -91,54 +91,44 @@ def get_next_boss():
         for time_str, boss in SCHEDULE[day_name]:
             h, m = map(int, time_str.split(":"))
 
-            boss_time = now.replace(hour=h, minute=m, second=0, microsecond=0)
+            boss_time = now.replace(
+                hour=h,
+                minute=m,
+                second=0,
+                microsecond=0
+            ) + timedelta(days=add_day)
 
-            if add_day:
-                boss_time += timedelta(days=add_day)
+            minutes = int((boss_time - now).total_seconds() // 60)
 
-            if boss_time > now:
-                if nearest_time is None or boss_time < nearest_time:
-                    nearest_time = boss_time
-                    nearest_boss = boss
+            if minutes >= 0:
+                result[boss] = min(result[boss], minutes)
 
-    minutes = int((nearest_time - now).total_seconds() // 60)
-    return nearest_boss, minutes
+    return result
    
 
 # ================= ОБНОВЛЕНИЕ КАНАЛА =================
 @tasks.loop(minutes=1)
 async def update_channel():
-    print("\n==== ЦИКЛ ОБНОВЛЕНИЯ ====")
-
     try:
         guild = bot.get_guild(GUILD_ID)
-        print("guild ->", guild)
-
         if not guild:
-            print("❌ Сервер не найден")
             return
 
-        channel = guild.get_channel(CHANNEL_ID)
-        print("channel ->", channel)
+        boss_times = get_all_boss_times()
 
-        if not channel:
-            print("❌ Канал не найден")
-            return
+       for channel in guild.voice_channels:
 
-        boss, minutes = get_next_boss()
-        print("boss/minutes ->", boss, minutes)
+            for boss, minutes in boss_times.items():
 
-        boss_name = BOSS_NAMES.get(boss, boss)
-        time_text = format_time(minutes)
+                if boss.lower() in channel.name.lower():
 
-        new_name = f"{boss_name} • {time_text}"
-        print("new name ->", new_name)
+                   text = format_time(minutes)
+                    boss_name = BOSS_NAMES[boss]
+                    new_name = f"{boss_name} • {text}"
 
-        if channel.name != new_name:
-            await channel.edit(name=new_name)
-            print("✅ Канал обновлён")
-        else:
-            print("ℹ️ Уже актуально")
+                    if channel.name != new_name:
+                        await channel.edit(name=new_name)
+                        print(f"✅ {new_name}")
 
     except Exception as e:
         print("❌ ОШИБКА:", e)
