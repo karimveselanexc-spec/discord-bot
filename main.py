@@ -1,3 +1,4 @@
+raise Exception("ЭТО НОВЫЙ ФАЙЛ")
 import os
 import discord
 from discord.ext import commands, tasks
